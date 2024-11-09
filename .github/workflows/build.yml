@@ -1,0 +1,48 @@
+name: ESP32 Build Check
+
+on:
+  push:
+    branches:
+      - main  # Run on pushes to the main branch
+  pull_request:
+    branches:
+      - main  # Run on pull requests to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      IDF_PATH: ${{ github.workspace }}/esp-idf  # Set IDF_PATH to the cloned esp-idf directory
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python and ESP-IDF dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  
+
+      - name: Install ESP-IDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git wget flex bison gperf python3-pip python3-setuptools cmake ninja-build ccache libffi-dev libssl-dev dfu-util
+
+      # Step 3: Download and install ESP-IDF
+      - name: Set up ESP-IDF
+        run: |
+          git clone --recursive https://github.com/espressif/esp-idf.git esp-idf
+          cd esp-idf
+          ./install.sh  # Install ESP-IDF and required tools
+          . ./export.sh  # Export ESP-IDF environment variables
+
+      # Step 4: Set target to esp32 and build the project
+      - name: Set target to ESP32 and Build
+        run: |
+          . $IDF_PATH/export.sh  # Source ESP-IDF environment variables
+          idf.py set-target esp32  # Set the target to esp32
+          idf.py build  # Run the build command
+        working-directory: .
