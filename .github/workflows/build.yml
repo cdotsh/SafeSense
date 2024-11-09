@@ -3,10 +3,8 @@ name: ESP32 Build Check
 on:
   push:
     branches:
-      - main  # Run on pushes to the main branch
-  pull_request:
-    branches:
       - main
+  pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
@@ -14,14 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IDF_PATH: ${{ github.workspace }}/esp-idf  # Set IDF_PATH to the cloned esp-idf directory
+      IDF_PATH: ${{ github.workspace }}/esp-idf  
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Install dependencies and ESP-IDF
       - name: Install dependencies and ESP-IDF
         run: |
           sudo apt-get update
@@ -30,10 +26,9 @@ jobs:
           cd esp-idf
           ./install.sh && . ./export.sh
 
-      # Step 3: Set target to esp32 and build the project
       - name: Set target to ESP32 and Build
         run: |
-          . $IDF_PATH/export.sh  # Source ESP-IDF environment variables
-          idf.py set-target esp32  # Set the target to esp32
-          idf.py build  # Run the build command
+          . $IDF_PATH/export.sh
+          idf.py set-target esp32
+          idf.py build
         working-directory: .
